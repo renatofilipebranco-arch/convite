@@ -419,24 +419,28 @@ to{transform:translateX(-50%) translateY(-60px);}}
 </audio>
 
 <script>
-
-// ===== SISTEMA ESTÁVEL DE NAVEGAÇÃO =====
-document.addEventListener("DOMContentLoaded", function(){
-
+// ===== Level 3 cinematic engine (stable) =====
+document.addEventListener("DOMContentLoaded", () => {
   const slides = Array.from(document.querySelectorAll('.slide'));
   const dotsContainer = document.getElementById('dots');
+  const cover = document.getElementById('cover');
   let idx = 0;
   let timer = null;
 
-  slides.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='dot'+(i===0?' on':'');
-    dotsContainer.appendChild(d);
-  });
+  // Build dots
+  if (dotsContainer) {
+    dotsContainer.innerHTML = "";
+    slides.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' on' : '');
+      dotsContainer.appendChild(d);
+    });
+  }
 
   function updateDots(){
-    Array.from(dotsContainer.children).forEach((el,i)=>{
-      el.classList.toggle('on', i===idx);
+    if (!dotsContainer) return;
+    Array.from(dotsContainer.children).forEach((el, i) => {
+      el.classList.toggle('on', i === idx);
     });
   }
 
@@ -448,117 +452,101 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   function nextSlide(){
-    let n = (idx + 1) % slides.length;
-    showSlide(n);
+    showSlide((idx + 1) % slides.length);
   }
 
   function prevSlide(){
-    let n = (idx - 1 + slides.length) % slides.length;
-    showSlide(n);
+    showSlide((idx - 1 + slides.length) % slides.length);
   }
 
   function startAutoplay(){
-    if(timer) clearInterval(timer);
+    if (timer) clearInterval(timer);
     timer = setInterval(nextSlide, 4000);
   }
 
-  // Expor funções globais para setas
-  window.manualNext = function(){
-    nextSlide();
-    startAutoplay();
-  }
+  // Expose for arrows
+  window.manualNext = () => { nextSlide(); startAutoplay(); };
+  window.manualPrev = () => { prevSlide(); startAutoplay(); };
 
-  window.manualPrev = function(){
-    prevSlide();
-    startAutoplay();
-  }
+  // Swipe navigation (only after envelope is gone)
+  let touchStartX = 0, touchStartY = 0;
 
-  // Swipe
-  let touchStartX = 0;
-  window.addEventListener('touchstart', e=>{
+  window.addEventListener('touchstart', (e) => {
+    if (!e.changedTouches || !e.changedTouches[0]) return;
     touchStartX = e.changedTouches[0].clientX;
-  }, {passive:true});
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
 
-  window.addEventListener('touchend', e=>{
-    let dx = e.changedTouches[0].clientX - touchStartX;
-    if(Math.abs(dx) > 60){
-      if(dx < 0) window.manualNext();
-      else window.manualPrev();
+  window.addEventListener('touchend', (e) => {
+    if (cover && cover.style.display !== 'none') return; // don't swipe under the envelope
+    if (!e.changedTouches || !e.changedTouches[0]) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dy) > 80) return;
+
+    if (dx < 0) window.manualNext();
+    else window.manualPrev();
+  }, { passive: true });
+
+  // Start autoplay immediately (slides are behind cover until open)
+  startAutoplay();
+
+  // ===== Audio helpers =====
+  window.startMusic = () => {
+    const audio = document.getElementById("bgMusic");
+    if (!audio) return;
+    audio.volume = 0.0;
+    const p = audio.play();
+    if (p && p.then) {
+      p.then(() => {
+        let v = 0;
+        const fade = setInterval(() => {
+          v = Math.min(0.50, v + 0.03);
+          audio.volume = v;
+          if (v >= 0.50) clearInterval(fade);
+        }, 140);
+      }).catch(() => {});
     }
-  }, {passive:true});
+  };
 
-  startAutoplay();
+  window.toggleAudio = () => {
+    const audio = document.getElementById("bgMusic");
+    if (!audio) return;
+    if (audio.paused) audio.play().catch(()=>{});
+    else audio.pause();
+  };
 
+  // ===== Envelope open (MISSING before) =====
+  window.openEnvelope = () => {
+    const wrap = document.querySelector('.env-wrap');
+    if (wrap) {
+      wrap.classList.add('tap');
+      setTimeout(() => wrap.classList.remove('tap'), 160);
+    }
+    if (!cover) return;
+    cover.classList.add('open');
+    // allow time to see initials on seal
+    setTimeout(() => {
+      cover.style.display = "none";
+      window.startMusic();
+    }, 3200);
+  };
+
+  // ===== Countdown =====
+  const targetDate = new Date("June 6, 2026 12:00:00").getTime();
+  setInterval(() => {
+    const now = Date.now();
+    const d = targetDate - now;
+    const days = Math.max(0, Math.floor(d / (1000*60*60*24)));
+    const hours = Math.max(0, Math.floor((d % (1000*60*60*24)) / (1000*60*60)));
+    const minutes = Math.max(0, Math.floor((d % (1000*60*60)) / (1000*60)));
+    const seconds = Math.max(0, Math.floor((d % (1000*60)) / 1000));
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    set("days", days); set("hours", hours); set("minutes", minutes); set("seconds", seconds);
+  }, 1000);
 });
-// Countdown
-const targetDate=new Date("June 6, 2026 12:00:00").getTime();
-setInterval(()=>{
-  const now=Date.now();
-  const d=targetDate-now;
-  const days=Math.max(0, Math.floor(d/(1000*60*60*24)));
-  const hours=Math.max(0, Math.floor((d%(1000*60*60*24))/(1000*60*60)));
-  const minutes=Math.max(0, Math.floor((d%(1000*60*60))/(1000*60)));
-  const seconds=Math.max(0, Math.floor((d%(1000*60))/1000));
-  const el=(id,val)=>{ const e=document.getElementById(id); if(e) e.innerText=val; };
-  el("days",days); el("hours",hours); el("minutes",minutes); el("seconds",seconds);
-}, 1000);
-
-
-function manualPrev(){
-  lastInteraction = Date.now();
-  const n = (idx - 1 + slides.length) % slides.length;
-  showSlide(n);
-  if(timer) clearInterval(timer);
-  startAutoplay();
-}
-
-function manualNext(){
-  lastInteraction = Date.now();
-  const n = (idx + 1) % slides.length;
-  showSlide(n);
-  // restart autoplay rhythm
-  if(timer) clearInterval(timer);
-  startAutoplay();
-}
-
-
-// Swipe navigation (mobile)
-let touchStartX = 0;
-let touchStartY = 0;
-let touchStartT = 0;
-
-function onTouchStart(e){
-  if(!e.touches || e.touches.length !== 1) return;
-  const t = e.touches[0];
-  touchStartX = t.clientX;
-  touchStartY = t.clientY;
-  touchStartT = Date.now();
-}
-
-function onTouchEnd(e){
-  const dt = Date.now() - touchStartT;
-  if(dt > 700) return; // too slow
-  const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
-  if(!t) return;
-
-  const dx = t.clientX - touchStartX;
-  const dy = t.clientY - touchStartY;
-
-  // horizontal swipe threshold
-  if(Math.abs(dx) < 50) return;
-  // avoid triggering on vertical scroll intent
-  if(Math.abs(dy) > 60) return;
-
-  if(dx < 0) manualNext();
-  else manualPrev();
-}
-
-// Apply only after cover is gone to avoid weirdness
-function enableSwipe(){
-  window.addEventListener('touchstart', onTouchStart, {passive:true});
-  window.addEventListener('touchend', onTouchEnd, {passive:true});
-}
-
 </script>
 
 
