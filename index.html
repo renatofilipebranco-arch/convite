@@ -290,31 +290,41 @@ to{transform:translateX(-50%) translateY(-60px);}}
 }
 
 
+
 .nav-arrow{
   position:fixed;
   top:50%;
   transform:translateY(-50%);
-  width:52px;
-  height:52px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:28px;
+  font-size:22px;
   cursor:pointer;
-  background:rgba(255,255,255,0.65);
-  color:rgba(106,135,118,0.95);
-  backdrop-filter: blur(6px);
-  border:1px solid rgba(106,135,118,0.35);
+  background:rgba(255,255,255,0.15);
+  color:rgba(106,135,118,0.55);
+  backdrop-filter: blur(3px);
+  border:1px solid rgba(106,135,118,0.15);
   transition:.3s;
   z-index:60;
 }
 .nav-arrow:hover{
-  background:rgba(106,135,118,0.95);
-  color:white;
+  background:rgba(106,135,118,0.25);
+  color:rgba(106,135,118,0.95);
 }
+
 .nav-arrow.left{ left:24px; }
 .nav-arrow.right{ right:24px; }
+
+
+@media (max-width:768px){
+  h1{font-size:3.8rem;}
+  .subtitle{font-size:2.2rem;}
+  h2{font-size:1.6rem;}
+  p{font-size:1.05rem;}
+}
 
 </style>
 </head>
@@ -444,14 +454,13 @@ function showSlide(next){
 function nextSlide(){
   if(paused) return;
   // give user time after manual nav
-  if(lastInteraction && (Date.now() - lastInteraction) < 5000) return;
-  const n = (idx + 1) % slides.length;
+    const n = (idx + 1) % slides.length;
   showSlide(n);
 }
 
 function startAutoplay(){
   if(timer) clearInterval(timer);
-  timer = setInterval(nextSlide, 4200);
+  timer = setInterval(nextSlide, 4000);
 }
 startAutoplay();
 
