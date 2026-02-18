@@ -326,6 +326,25 @@ to{transform:translateX(-50%) translateY(-60px);}}
   p{font-size:1.05rem;}
 }
 
+
+/* ---------- Layout refinements (mobile safe zones) ---------- */
+.slide p{max-width:680px; margin-left:auto; margin-right:auto;}
+.slide{ padding-left: 36px; padding-right: 36px; }
+
+@media (max-width: 768px){
+  /* More centered text and less arrow interference */
+  .slide{ width:min(760px, 92vw); padding-left: 52px; padding-right: 52px; }
+  .slide p{ max-width: 320px; }
+  /* Move arrows slightly lower + more transparent */
+  .nav-arrow{ width:36px; height:36px; font-size:18px; opacity:0.35; top:62%; }
+  .nav-arrow:hover{ opacity:0.75; }
+  /* Countdown vertical stack */
+  .countdown{ flex-direction:column; gap:16px; align-items:center; }
+  .countdown div{ min-width:auto; }
+  .countdown div span{ display:block; font-size:2.35rem; line-height:1.05; }
+  .countdown div br{ display:none; }
+}
+
 </style>
 
 <meta property="og:title" content="Gizelene & Renato | Casamento & Batizado da Alicia">
