@@ -385,8 +385,7 @@ to{transform:translateX(-50%) translateY(-60px);}}
   <div class="slide" data-title="Celebração">
     <h2>Celebração</h2>
     <p>Salão de Festas Patinhos</p>
-    <p>Carapinheira</p>
-    <a href="https://www.google.com/maps/search/Salao+de+Festas+Patinhos+Carapinheira" target="_blank" rel="noopener">
+    <a href="https://www.google.com/maps/search/?api=1&query=Patinhos,+Ladeira+dos+Caiados,+3140-106+Coimbra" target="_blank" rel="noopener">
       <button class="btn">VER LOCALIZAÇÃO</button>
     </a>
   </div>
@@ -434,27 +433,9 @@ function setDot(i){
 // Level 3 autoplay (no scroll): crossfade slides
 let idx = 0;
 let timer = null;
-let paused = false;
-let lastInteraction = 0;
-
-function showSlide(next){
-  if(next===idx) return;
-  const cur = slides[idx];
-  const nxt = slides[next];
-  cur.classList.add('exiting');
-  cur.classList.remove('active');
-  // ensure exit transition triggers
-  setTimeout(()=>cur.classList.remove('exiting'), 900);
-
-  nxt.classList.add('active');
-  setDot(next);
-  idx = next;
-}
 
 function nextSlide(){
-  if(paused) return;
-  // give user time after manual nav
-    const n = (idx + 1) % slides.length;
+  const n = (idx + 1) % slides.length;
   showSlide(n);
 }
 
@@ -462,6 +443,7 @@ function startAutoplay(){
   if(timer) clearInterval(timer);
   timer = setInterval(nextSlide, 4000);
 }
+
 startAutoplay();
 
 // Pause on any interaction (keeps elegant)
