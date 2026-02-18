@@ -582,45 +582,5 @@ document.addEventListener("DOMContentLoaded", () => {
 <div class="nav-arrow left" onclick="manualPrev()">‹</div>
 <div class="nav-arrow right" onclick="manualNext()">›</div>
 
-
-<script>
-// Personalização por nome via URL ?nome=Ana
-const params = new URLSearchParams(window.location.search);
-const nome = params.get("nome");
-if(nome){
-    const hero = document.querySelector("h1");
-    if(hero){
-        const mensagem = document.createElement("p");
-        mensagem.style.marginTop = "20px";
-        mensagem.style.fontSize = "18px";
-        mensagem.style.opacity = "0.9";
-        mensagem.innerText = nome + ", queremos muito que estejas connosco 💍";
-        hero.parentNode.insertBefore(mensagem, hero.nextSibling);
-    }
-}
-
-// Demo mapa animado simples
-function mostrarMapaDemo(){
-    const mapa = document.createElement("div");
-    mapa.style.position = "fixed";
-    mapa.style.bottom = "0";
-    mapa.style.left = "0";
-    mapa.style.width = "100%";
-    mapa.style.height = "40%";
-    mapa.style.background = "#F3EFE6";
-    mapa.style.display = "flex";
-    mapa.style.alignItems = "center";
-    mapa.style.justifyContent = "center";
-    mapa.style.fontSize = "20px";
-    mapa.style.color = "#6A8776";
-    mapa.style.boxShadow = "0 -10px 30px rgba(0,0,0,0.1)";
-    mapa.style.animation = "fadeIn 1s ease forwards";
-    mapa.innerHTML = "📍 Igreja Matriz de Tentúgal → Patinhos";
-    document.body.appendChild(mapa);
-}
-
-setTimeout(mostrarMapaDemo, 4000);
-</script>
-
 </body>
 </html>
