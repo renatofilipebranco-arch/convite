@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gizelene & Renato</title>
+<link href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--sage:#6A8776;--gold:#C6A85A;--paper:#f4f0e8;--text:#3f4a42;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  font-family:'Cormorant Garamond',serif;
+  background:
+    radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.015) 1px, transparent 1px),
+    var(--paper);
+  background-size:3px 3px, 5px 5px, cover;
+  text-align:center;
+  overflow:hidden;
+}
+
+/* ---------- Typography ---------- */
+h1{font-family:'Allura',cursive; font-size:5.15rem; color:var(--sage); line-height:1.02; letter-spacing:0.2px;}
+.subtitle{font-family:'Allura',cursive; font-size:3.05rem; color:var(--sage); margin-top:10px;}
+.gold-amp{color:var(--gold); animation:glow 3.2s infinite; display:inline-block;}
+@keyframes glow{0%{text-shadow:0 0 0 transparent;}50%{text-shadow:0 0 10px rgba(198,168,90,.22);}100%{text-shadow:0 0 0 transparent;}}
+.small{letter-spacing:3px; color:rgba(106,135,118,0.95); margin-top:18px; font-size:1.05rem;}
+.event-type{
+  margin-top:12px;
+  font-size:0.95rem;
+  letter-spacing:2.4px;
+  color:rgba(63,74,66,0.72);
+  display:flex;
+  align-items:center;
+  gap:14px;
+  justify-content:center;
+}
+.event-type::before,.event-type::after{
+  content:''; width:54px; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(106,135,118,0.55), transparent);
+}
+h2{color:var(--sage); font-weight:400; font-size:2.2rem; margin-bottom:10px;}
+p{color:var(--text); font-size:1.25rem; line-height:1.65;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  margin-top:28px; padding:12px 32px;
+  border:1px solid rgba(106,135,118,0.95);
+  background:transparent; color:rgba(106,135,118,0.98);
+  cursor:pointer; transition:.35s;
+  font-size:.95rem; letter-spacing:1px;
+  border-radius:999px;
+}
+.btn:hover{background:rgba(106,135,118,0.95); color:white;}
+
+/* ---------- Audio ---------- */
+.audio-control{
+  position:fixed; bottom:22px; right:22px;
+  width:54px; height:54px; border-radius:50%;
+  background:rgba(106,135,118,0.98); color:white;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:0 14px 30px rgba(0,0,0,.14);
+  user-select:none;
+  z-index:50;
+}
+
+/* ---------- Stage: "Level 3" cinematic (no scroll) ---------- */
+.stage{
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:74px 18px 86px;
+}
+.slide{
+  position:absolute;
+  width:min(780px, 92vw);
+  opacity:0;
+  transform:translateY(20px) scale(0.995);
+  transition:opacity 900ms cubic-bezier(.22,1,.36,1), transform 900ms cubic-bezier(.22,1,.36,1);
+  pointer-events:none;
+}
+.slide.active{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+/* subtle cross-fade out */
+.slide.exiting{
+  opacity:0;
+  transform:translateY(-14px) scale(0.995);
+}
+
+.dots{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
+  display:flex; gap:10px; z-index:40;
+}
+.dot{
+  width:7px; height:7px; border-radius:50%;
+  background:rgba(106,135,118,0.25);
+  transition:transform 250ms ease, background 250ms ease;
+}
+.dot.on{background:rgba(106,135,118,0.7); transform:scale(1.25);}
+
+.countdown{
+  display:flex; gap:22px; margin-top:28px;
+  flex-wrap:wrap; justify-content:center;
+  font-size:1.25rem; color:rgba(106,135,118,0.98);
+}
+.countdown div{min-width:84px;}
+
+/* ---------- Cover / Envelope (slower, clearer initials) ---------- */
+.cover{
+  position:fixed; inset:0; z-index:9999;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  background:var(--paper);
+  overflow:hidden;
+}
+.paper-light{
+  position:absolute; inset:-20%;
+  background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.0) 35%, rgba(255,255,255,0.33) 50%, rgba(255,255,255,0.0) 65%, transparent 100%);
+  transform:translateX(-60%);
+  opacity:0; pointer-events:none;
+}
+.cover.open .paper-light{opacity:1; animation:sweep 1600ms cubic-bezier(.22,1,.36,1) forwards;}
+@keyframes sweep{to{transform:translateX(60%);}}
+
+.env-wrap{
+  position:relative; width:340px; height:260px;
+  cursor:pointer; transform:translateZ(0);
+  will-change:transform;
+}
+.env-wrap.tap{transform:scale(0.985) translateZ(0); transition:transform 140ms ease;}
+
+.envelope{
+  position:absolute; left:50%; top:62px; transform:translateX(-50%);
+  width:310px; height:186px;
+  background:rgba(106,135,118,0.98);
+  border-radius:14px;
+  box-shadow:0 34px 60px rgba(0,0,0,.20);
+  overflow:hidden;
+}
+.envelope::after{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,.05) 1px, transparent 1px);
+  background-size:4px 4px, 6px 6px;
+  mix-blend-mode:overlay;
+  opacity:.35;
+  pointer-events:none;
+}
+.flap{
+  position:absolute; left:50%; top:0; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:155px solid transparent;
+  border-right:155px solid transparent;
+  border-bottom:98px solid rgba(106,135,118,0.98);
+  transform-origin:bottom;
+  transition:2.2s cubic-bezier(.22,1,.36,1);
+}
+.card{
+  position:absolute; left:50%; top:78px; transform:translateX(-50%);
+  width:270px; height:170px;
+  background:linear-gradient(180deg, rgba(255,255,255,.965), rgba(248,244,236,.965));
+  border-radius:12px;
+  box-shadow:0 18px 30px rgba(0,0,0,.14);
+  opacity:0;
+}
+.card::before{
+  content:''; position:absolute; inset:10px;
+  border:1px solid rgba(106,135,118,.25);
+  border-radius:10px;
+}
+.card .monogram{
+  position:absolute; left:50%; top:55%;
+  transform:translate(-50%,-50%);
+  font-family:'Allura', cursive;
+  font-size:2.2rem;
+  color:rgba(106,135,118,.78);
+}
+.card .monogram span{color:var(--gold);}
+
+/* Wax seal with embossed initials */
+.seal{
+  position:absolute; left:50%; top:154px; transform:translate(-50%,-50%);
+  width:78px; height:78px; border-radius:50%;
+  background:
+    radial-gradient(circle at 28% 28%, rgba(255,255,255,.45), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 65% 65%, rgba(0,0,0,.15), rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 35% 35%, #f6dda0, #C6A85A);
+  box-shadow:
+    0 14px 26px rgba(0,0,0,.22),
+    inset 0 2px 10px rgba(255,255,255,.45),
+    inset 0 -10px 18px rgba(0,0,0,.18);
+}
+.seal::before{
+  content:''; position:absolute; inset:-6px;
+  border-radius:50%;
+  background:conic-gradient(from 10deg, rgba(198,168,90,0.0), rgba(198,168,90,0.55), rgba(198,168,90,0.0));
+  opacity:.35;
+  filter:blur(1px);
+}
+.seal::after{
+  content:''; position:absolute; inset:12px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow:inset 0 2px 6px rgba(255,255,255,.22);
+  opacity:.65;
+}
+.seal-mark{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Allura', cursive;
+  font-size:1.9rem;
+  color:rgba(120,92,35,0.55);
+  letter-spacing:1px;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.25),
+    0 -1px 0 rgba(0,0,0,.10);
+  mix-blend-mode:multiply;
+}
+.crack{
+  position:absolute; left:50%; top:50%;
+  width:56px; height:2px;
+  background:rgba(255,255,255,.28);
+  transform:translate(-50%,-50%) rotate(-18deg);
+  opacity:0;
+}
+.seal-half{position:absolute; top:0; width:50%; height:100%; overflow:hidden;}
+.seal-half.left{left:0; border-top-left-radius:50%; border-bottom-left-radius:50%;}
+.seal-half.right{right:0; border-top-right-radius:50%; border-bottom-right-radius:50%;}
+.seal-core{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 28% 28%, rgba(255,255,255,.45), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 65% 65%, rgba(0,0,0,.15), rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 35% 35%, #f6dda0, #C6A85A);
+}
+.seal-half.right .seal-core{transform:translateX(-50%);}
+
+/* Gold particles */
+.particles{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:1px; height:1px; pointer-events:none; }
+.particle{
+  position:absolute; width:4px; height:4px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(198,168,90,0.95));
+  opacity:0;
+}
+@keyframes popParticle{
+  0%{ transform: translate(0,0) scale(0.6); opacity:0; }
+  15%{ opacity:0.65; }
+  100%{ transform: translate(var(--dx), var(--dy)) scale(0.2); opacity:0; }
+}
+.cover.open .particle{ animation: popParticle 1100ms cubic-bezier(.22,1,.36,1) forwards 1.05s; }
+
+/* Open choreography (slower) */
+.cover.open .crack{opacity:1; transition:opacity .6s ease 0.9s;}
+.cover.open .seal-half.left{animation: sealLeft 1400ms cubic-bezier(.22,1,.36,1) forwards 1.15s;}
+.cover.open .seal-half.right{animation: sealRight 1400ms cubic-bezier(.22,1,.36,1) forwards 1.15s;}
+@keyframes sealLeft{to{transform:translateX(-26px) rotate(-12deg); opacity:0;}}
+@keyframes sealRight{to{transform:translateX(26px) rotate(12deg); opacity:0;}}
+
+.cover.open .card{opacity:1; animation: cardUp 1800ms cubic-bezier(.22,1,.36,1) forwards 0.75s;}
+@keyframes cardUp{from{transform:translateX(-50%) translateY(55px);}
+to{transform:translateX(-50%) translateY(-60px);}}
+
+.cover.open .flap{transform:translateX(-50%) rotateX(-170deg);}
+.cover.open .env-wrap{transform:translateY(-120vh) scale(.93); transition:2.0s cubic-bezier(.22,1,.36,1) 1.2s;}
+
+.hint{margin-top:18px; color:rgba(106,135,118,0.98); letter-spacing:2px; font-size:0.98rem;}
+
+.next-btn{
+  position:fixed;
+  right:24px;
+  bottom:90px;
+  padding:10px 22px;
+  border-radius:999px;
+  border:1px solid rgba(106,135,118,0.95);
+  background:rgba(255,255,255,0.85);
+  color:rgba(106,135,118,0.98);
+  font-size:0.85rem;
+  letter-spacing:1px;
+  cursor:pointer;
+  backdrop-filter: blur(4px);
+  transition:.3s;
+  z-index:60;
+}
+.next-btn:hover{
+  background:rgba(106,135,118,0.95);
+  color:white;
+}
+
+
+.nav-arrow{
+  position:fixed;
+  top:50%;
+  transform:translateY(-50%);
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  cursor:pointer;
+  background:rgba(255,255,255,0.65);
+  color:rgba(106,135,118,0.95);
+  backdrop-filter: blur(6px);
+  border:1px solid rgba(106,135,118,0.35);
+  transition:.3s;
+  z-index:60;
+}
+.nav-arrow:hover{
+  background:rgba(106,135,118,0.95);
+  color:white;
+}
+.nav-arrow.left{ left:24px; }
+.nav-arrow.right{ right:24px; }
+
+</style>
+</head>
+<body>
+
+<div class="cover" id="cover" onclick="openEnvelope()">
+  <div class="paper-light" aria-hidden="true"></div>
+
+  <div class="env-wrap" aria-label="Abrir convite">
+    <div class="envelope"></div>
+    <div class="card" aria-hidden="true">
+      <div class="monogram">G<span>&</span>R</div>
+    </div>
+    <div class="flap" aria-hidden="true"></div>
+
+    <div class="seal" aria-hidden="true">
+      <div class="seal-half left"><div class="seal-core"></div></div>
+      <div class="seal-half right"><div class="seal-core"></div></div>
+      <div class="seal-mark">GR</div>
+      <div class="crack"></div>
+      <div class="particles" aria-hidden="true">
+        <span class="particle" style="--dx:-18px;--dy:-22px;"></span>
+        <span class="particle" style="--dx:24px;--dy:-16px;"></span>
+        <span class="particle" style="--dx:-10px;--dy:26px;"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">TOCAR PARA ABRIR</div>
+</div>
+
+<div class="stage" id="stage" aria-live="polite">
+  <div class="slide active" data-title="Intro">
+    <h1>Gizelene <span class="gold-amp">&</span> Renato</h1>
+    <div class="subtitle">Alicia</div>
+    <div class="small">06 DE JUNHO DE 2026</div>
+    <div class="event-type">CASAMENTO &amp; BATIZADO</div>
+  </div>
+
+  <div class="slide" data-title="Nossa História">
+    <h2>Nossa História</h2>
+    <p style="max-width:660px;">
+      No mesmo dia celebramos o nosso casamento e o batizado da nossa Alicia.<br>
+      Queremos muito que estejas connosco neste momento tão especial.
+    </p>
+  </div>
+
+  <div class="slide" data-title="Cerimónia">
+    <h2>Cerimónia</h2>
+    <p>12h</p>
+    <p>Igreja Matriz de Tentúgal</p>
+    <a href="https://www.google.com/maps/search/Igreja+Matriz+de+Tentugal" target="_blank" rel="noopener">
+      <button class="btn">VER LOCALIZAÇÃO</button>
+    </a>
+    <a href="invite.ics" download><button class="btn">ADICIONAR AO CALENDÁRIO</button></a>
+  </div>
+
+  <div class="slide" data-title="Celebração">
+    <h2>Celebração</h2>
+    <p>Salão de Festas Patinhos</p>
+    <p>Carapinheira</p>
+    <a href="https://www.google.com/maps/search/Salao+de+Festas+Patinhos+Carapinheira" target="_blank" rel="noopener">
+      <button class="btn">VER LOCALIZAÇÃO</button>
+    </a>
+  </div>
+
+  <div class="slide" data-title="Contagem">
+    <h2>Faltam...</h2>
+    <div class="countdown">
+      <div><span id="days"></span><br>Dias</div>
+      <div><span id="hours"></span><br>Horas</div>
+      <div><span id="minutes"></span><br>Minutos</div>
+      <div><span id="seconds"></span><br>Segundos</div>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Confirmação">
+    <h2>Confirma a tua presença</h2>
+    <p>Até 30 de Abril</p>
+    <a href="https://docs.google.com/forms/d/1Q1BMMBi9aczAJ5DE9OSq5J_iikQnjkH65BuEHovvEN8/edit?ts=6977a6bd&pli=1" target="_blank" rel="noopener">
+      <button class="btn">CONFIRMAR PRESENÇA</button>
+    </a>
+  </div>
+</div>
+
+<div class="dots" id="dots" aria-hidden="true"></div>
+
+<div class="audio-control" onclick="toggleAudio()" aria-label="Música">♪</div>
+
+<audio id="bgMusic" loop preload="auto" playsinline>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// Build dots
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots = document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  dots.appendChild(d);
+});
+function setDot(i){
+  Array.from(dots.children).forEach((el,idx)=>el.classList.toggle('on', idx===i));
+}
+
+// Level 3 autoplay (no scroll): crossfade slides
+let idx = 0;
+let timer = null;
+let paused = false;
+let lastInteraction = 0;
+
+function showSlide(next){
+  if(next===idx) return;
+  const cur = slides[idx];
+  const nxt = slides[next];
+  cur.classList.add('exiting');
+  cur.classList.remove('active');
+  // ensure exit transition triggers
+  setTimeout(()=>cur.classList.remove('exiting'), 900);
+
+  nxt.classList.add('active');
+  setDot(next);
+  idx = next;
+}
+
+function nextSlide(){
+  if(paused) return;
+  // give user time after manual nav
+  if(lastInteraction && (Date.now() - lastInteraction) < 5000) return;
+  const n = (idx + 1) % slides.length;
+  showSlide(n);
+}
+
+function startAutoplay(){
+  if(timer) clearInterval(timer);
+  timer = setInterval(nextSlide, 4200);
+}
+startAutoplay();
+
+// Pause on any interaction (keeps elegant)
+['click','touchstart','keydown','wheel'].forEach(ev=>{
+  window.addEventListener(ev, ()=>{ paused=true; if(timer) clearInterval(timer); }, {passive:true});
+});
+
+// Envelope tap feedback + slower open and reveal
+function openEnvelope(){
+  const cover=document.getElementById("cover");
+  const wrap=document.querySelector('.env-wrap');
+  if(wrap){ wrap.classList.add('tap'); setTimeout(()=>wrap.classList.remove('tap'), 160); }
+  cover.classList.add("open");
+  // allow time to SEE initials on the seal before disappearing
+  setTimeout(()=>{
+    cover.style.display="none";
+    startMusic();
+    enableSwipe();
+  }, 3200);
+}
+
+function startMusic(){
+  const audio=document.getElementById("bgMusic");
+  audio.volume=0.0;
+  const p = audio.play();
+  if(p && p.then){
+    p.then(()=>{
+      let v=0;
+      const fade=setInterval(()=>{
+        v = Math.min(0.50, v + 0.03);
+        audio.volume = v;
+        if(v>=0.50) clearInterval(fade);
+      }, 140);
+    }).catch(()=>{});
+  }
+}
+function toggleAudio(){
+  const audio=document.getElementById("bgMusic");
+  if(audio.paused) audio.play().catch(()=>{});
+  else audio.pause();
+}
+
+// Countdown
+const targetDate=new Date("June 6, 2026 12:00:00").getTime();
+setInterval(()=>{
+  const now=Date.now();
+  const d=targetDate-now;
+  const days=Math.max(0, Math.floor(d/(1000*60*60*24)));
+  const hours=Math.max(0, Math.floor((d%(1000*60*60*24))/(1000*60*60)));
+  const minutes=Math.max(0, Math.floor((d%(1000*60*60))/(1000*60)));
+  const seconds=Math.max(0, Math.floor((d%(1000*60))/1000));
+  const el=(id,val)=>{ const e=document.getElementById(id); if(e) e.innerText=val; };
+  el("days",days); el("hours",hours); el("minutes",minutes); el("seconds",seconds);
+}, 1000);
+
+
+function manualPrev(){
+  lastInteraction = Date.now();
+  const n = (idx - 1 + slides.length) % slides.length;
+  showSlide(n);
+  if(timer) clearInterval(timer);
+  startAutoplay();
+}
+
+function manualNext(){
+  lastInteraction = Date.now();
+  const n = (idx + 1) % slides.length;
+  showSlide(n);
+  // restart autoplay rhythm
+  if(timer) clearInterval(timer);
+  startAutoplay();
+}
+
+
+// Swipe navigation (mobile)
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartT = 0;
+
+function onTouchStart(e){
+  if(!e.touches || e.touches.length !== 1) return;
+  const t = e.touches[0];
+  touchStartX = t.clientX;
+  touchStartY = t.clientY;
+  touchStartT = Date.now();
+}
+
+function onTouchEnd(e){
+  const dt = Date.now() - touchStartT;
+  if(dt > 700) return; // too slow
+  const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+  if(!t) return;
+
+  const dx = t.clientX - touchStartX;
+  const dy = t.clientY - touchStartY;
+
+  // horizontal swipe threshold
+  if(Math.abs(dx) < 50) return;
+  // avoid triggering on vertical scroll intent
+  if(Math.abs(dy) > 60) return;
+
+  if(dx < 0) manualNext();
+  else manualPrev();
+}
+
+// Apply only after cover is gone to avoid weirdness
+function enableSwipe(){
+  window.addEventListener('touchstart', onTouchStart, {passive:true});
+  window.addEventListener('touchend', onTouchEnd, {passive:true});
+}
+
+</script>
+
+
+
+
+
+<div class="nav-arrow left" onclick="manualPrev()">‹</div>
+<div class="nav-arrow right" onclick="manualNext()">›</div>
+
+</body>
+</html>

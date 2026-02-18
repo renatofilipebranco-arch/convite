@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Convite Gizelene & Renato//PT
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:cerimonia-20260606@gizelene-renato
+DTSTAMP:20260218T000000Z
+DTSTART:20260606T120000
+DTEND:20260606T133000
+SUMMARY:Cerimónia - Gizelene & Renato + Batizado Alicia
+LOCATION:Igreja Matriz de Tentúgal
+DESCRIPTION:Cerimónia do casamento e batizado da Alicia.
+END:VEVENT
+END:VCALENDAR
