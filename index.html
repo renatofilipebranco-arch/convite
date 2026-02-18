@@ -461,7 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startAutoplay(){
     if (timer) clearInterval(timer);
-    timer = setInterval(nextSlide, 4000);
+    timer = setInterval(nextSlide, 6000);
   }
 
   // Expose for arrows
@@ -490,8 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else window.manualPrev();
   }, { passive: true });
 
-  // Start autoplay immediately (slides are behind cover until open)
-  startAutoplay();
+  // Autoplay will start only after envelope opens
 
   // ===== Audio helpers =====
   window.startMusic = () => {
@@ -531,6 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       cover.style.display = "none";
       window.startMusic();
+      startAutoplay();
     }, 3200);
   };
 
