@@ -431,11 +431,25 @@ function setDot(i){
 }
 
 // Level 3 autoplay (no scroll): crossfade slides
+
 let idx = 0;
 let timer = null;
+const slides = Array.from(document.querySelectorAll('.slide'));
+
+function showSlide(n){
+  slides[idx].classList.remove('active');
+  idx = n;
+  slides[idx].classList.add('active');
+  updateDots();
+}
 
 function nextSlide(){
-  const n = (idx + 1) % slides.length;
+  let n = (idx + 1) % slides.length;
+  showSlide(n);
+}
+
+function prevSlide(){
+  let n = (idx - 1 + slides.length) % slides.length;
   showSlide(n);
 }
 
@@ -444,48 +458,50 @@ function startAutoplay(){
   timer = setInterval(nextSlide, 4000);
 }
 
-startAutoplay();
+function stopAutoplay(){
+  if(timer) clearInterval(timer);
+}
 
-// Pause on any interaction (keeps elegant)
-['click','touchstart','keydown','wheel'].forEach(ev=>{
-  window.addEventListener(ev, ()=>{ paused=true; if(timer) clearInterval(timer); }, {passive:true});
+function manualNext(){
+  nextSlide();
+  startAutoplay();
+}
+
+function manualPrev(){
+  prevSlide();
+  startAutoplay();
+}
+
+// Swipe navigation
+let touchStartX = 0;
+
+window.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].clientX;
+}, {passive:true});
+
+window.addEventListener('touchend', e => {
+  let dx = e.changedTouches[0].clientX - touchStartX;
+  if(Math.abs(dx) > 60){
+    if(dx < 0) manualNext();
+    else manualPrev();
+  }
+}, {passive:true});
+
+// Dots
+const dotsContainer = document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  dotsContainer.appendChild(d);
 });
 
-// Envelope tap feedback + slower open and reveal
-function openEnvelope(){
-  const cover=document.getElementById("cover");
-  const wrap=document.querySelector('.env-wrap');
-  if(wrap){ wrap.classList.add('tap'); setTimeout(()=>wrap.classList.remove('tap'), 160); }
-  cover.classList.add("open");
-  // allow time to SEE initials on the seal before disappearing
-  setTimeout(()=>{
-    cover.style.display="none";
-    startMusic();
-    enableSwipe();
-  }, 3200);
+function updateDots(){
+  Array.from(dotsContainer.children).forEach((el,i)=>{
+    el.classList.toggle('on', i===idx);
+  });
 }
 
-function startMusic(){
-  const audio=document.getElementById("bgMusic");
-  audio.volume=0.0;
-  const p = audio.play();
-  if(p && p.then){
-    p.then(()=>{
-      let v=0;
-      const fade=setInterval(()=>{
-        v = Math.min(0.50, v + 0.03);
-        audio.volume = v;
-        if(v>=0.50) clearInterval(fade);
-      }, 140);
-    }).catch(()=>{});
-  }
-}
-function toggleAudio(){
-  const audio=document.getElementById("bgMusic");
-  if(audio.paused) audio.play().catch(()=>{});
-  else audio.pause();
-}
-
+startAutoplay();
 // Countdown
 const targetDate=new Date("June 6, 2026 12:00:00").getTime();
 setInterval(()=>{
